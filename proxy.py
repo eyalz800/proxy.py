@@ -19,7 +19,7 @@ class Proxy:
                 return getattr(self._proxied, name)
 
             def dir_(self):
-                combined_members = set(dir(cls))
+                combined_members = set(self.__dict__.keys())
                 combined_members.update(dir(self._proxied))
                 return list(combined_members)
 

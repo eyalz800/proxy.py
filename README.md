@@ -74,6 +74,24 @@ print(f"Is original_object the same as real_db_instance? {original_object is rea
 original_object.connect()
 ```
 
+Output:
+```sh
+$ python3 example.py                                                                                                                                                                                               ─╯
+
+--- Interacting with db ---
+Database: Connecting to database...
+Connected
+[PERF_TRACE]: before execute SELECT * FROM users;
+Database: Executing query: SELECT * FROM users;
+[PERF_TRACE]: after execute SELECT * FROM users;, query took 1005.10ms
+Result for 'SELECT * FROM users;'
+Database: Disconnecting from database...
+
+--- Accessing the underlying proxied object ---
+Is original_object the same as real_db_instance? True
+Database: Executing query: SELECT * FROM users;
+```
+
 ## How It Works
 
 The core of this proxy mechanism relies on Python's magic methods:

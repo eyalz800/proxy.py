@@ -18,11 +18,17 @@ class Proxy:
             def get(self, name: str):
                 return getattr(self._proxied, name)
 
+            def dir_(self):
+                combined_members = set(dir(cls))
+                combined_members.update(dir(self._proxied))
+                return list(combined_members)
+
             bases = tuple(b for b in cls.__bases__ if b is not proxied)
             members = dict(cls.__dict__)
             members.update({
                 '__init__': init,
                 '__getattr__': get,
+                '__dir__': dir_,
             })
             return type(cls.__name__, bases, members) # type: ignore
         return make_proxy

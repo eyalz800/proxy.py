@@ -34,21 +34,27 @@ class DatabasePerformanceTracer(Database): # Inheritance is just to get completi
 
 # --- How to use ---
 
-# 1. Create an instance of the object you want to proxy
-real_db_instance = Database()
+if __name__ == "__main__":
+    # This example shows how to use the proxy with a real object.
+    # The proxy will automatically delegate calls to the original object
+    # and provide additional functionality (like performance tracing in this case).
 
-# 2. Create a proxied instance using `proxy.create`
-# The first argument is the proxy class, the second is the object to proxy.
-db = proxy.create(DatabasePerformanceTracer, real_db_instance)
+    print("--- Using Database with Performance Tracing Proxy ---")
+    # 1. Create an instance of the object you want to proxy
+    real_db_instance = Database()
 
-# Now, interact with the proxy instance
-print("\n--- Interacting with db ---")
-print(db.connect())
-print(db.execute_query("SELECT * FROM users;"))
-db.disconnect() # This call is delegated and autocompleted by LSP automatically
+    # 2. Create a proxied instance using `proxy.create`
+    # The first argument is the proxy class, the second is the object to proxy.
+    db = proxy.create(DatabasePerformanceTracer, real_db_instance)
 
-print("\n--- Accessing the underlying proxied object ---")
-# You can get the original object back using `proxy.get`
-original_object = proxy.get(Database, db)
-print(f"Is original_object the same as real_db_instance? {original_object is real_db_instance}")
-original_object.execute_query("SELECT * FROM users;")
+    # Now, interact with the proxy instance
+    print("\n--- Interacting with db ---")
+    print(db.connect())
+    print(db.execute_query("SELECT * FROM users;"))
+    db.disconnect() # This call is delegated and autocompleted by LSP automatically
+
+    print("\n--- Accessing the underlying proxied object ---")
+    # You can get the original object back using `proxy.get`
+    original_object = proxy.get(Database, db)
+    print(f"Is original_object the same as real_db_instance? {original_object is real_db_instance}")
+    original_object.execute_query("SELECT * FROM users;")

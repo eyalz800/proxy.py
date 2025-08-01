@@ -32,8 +32,8 @@ class DatabasePerformanceTracer(Database): # Inheritance is just to get completi
         self.total_time += elapsed_time
         return result
 
-    def summary(self) -> str:
-        return f"Total time: {self.total_time:.2f}ms"
+    def perf_summary(self):
+        print(f"Perf summary: {self.total_time:.2f}ms")
 
     # Any other methods or fields (like 'connect/disconnect' in this example) that are not
     # explicitly defined in DatabasePerformanceTracer will be automatically
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     print(db.execute_query("SELECT * FROM users;"))
     print(db.execute_query("SELECT * FROM products;"))
     db.disconnect() # This call is delegated and autocompleted by LSP automatically
-    db.summary()  # Call the summary method to see total time
+    db.perf_summary()  # Call the summary method to see total time
 
     print("\n--- Accessing the underlying proxied object ---")
     # You can get the original object back using `proxy.get`

@@ -6,7 +6,8 @@ class Proxy:
         def make_proxy(cls: type[ProxyType]) -> type[ProxyType]:
             def init(self, proxied: Proxied, *args, **kwargs):
                 self._proxied = proxied
-                cls.__init__(self, *args, **kwargs)
+                if cls.__init__ is not proxied.__class__.__init__:
+                    cls.__init__(self, *args, **kwargs)
 
             def get(self, name: str):
                 return getattr(self._proxied, name)

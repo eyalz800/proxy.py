@@ -99,7 +99,7 @@ class TestProxy(unittest.TestCase):
         @proxy(MockDatabase)
         class MockDatabasePerformanceTracer(MockDatabase):
             def execute_query(self, query: str) -> str:
-                # Simulate performance tracing logic without actual time.sleep
+                # Simulate performance tracing logic without actual time measurements
                 # We'll assert this method is called, and the underlying is also called
                 return proxy.get(MockDatabase, self).execute_query(query)
 

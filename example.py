@@ -12,7 +12,6 @@ class Database:
 
     def execute_query(self, query: str) -> str:
         print(f"Database: Executing query: {query}")
-        import time
         time.sleep(1)
         return f"Result for '{query}'"
 

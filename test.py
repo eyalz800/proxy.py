@@ -25,6 +25,24 @@ class TestProxy(unittest.TestCase):
         self.assertEqual(proxy_instance.get_value(), 10) # Accessing proxied method
         self.assertEqual(proxy_instance.value, 10) # Accessing proxied value
 
+    def test_proxy_set_value_distinct(self):
+        @proxy(MyProxiedClass)
+        class MyProxy(MyProxiedClass):
+            def get_doubled_value(self):
+                return proxy.get(MyProxiedClass, self).get_value() * 2
+
+        proxied_instance = MyProxiedClass(10)
+        proxy_instance = proxy.create(MyProxy, proxied_instance)
+
+        self.assertEqual(proxy_instance.value, 10) # Accessing proxied value
+        proxy_instance.value = 20  # Set a new value on the proxy
+        self.assertEqual(proxy_instance.value, 20)  # Check the proxy's value
+        self.assertEqual(proxied_instance.value, 10)  # Check the proxy's value
+        proxied_instance.value = 30  # Change the proxied instance's value
+        self.assertEqual(proxy_instance.value, 20)  # Check the proxy's value
+        del proxy_instance.value
+        self.assertEqual(proxy_instance.value, 30)  # Check the proxy's value
+
     def test_proxy_get_method(self):
         @proxy(MyProxiedClass)
         class AnotherProxy(MyProxiedClass):

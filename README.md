@@ -97,9 +97,9 @@ Database: Executing query: SELECT * FROM users;
 
 The core of this proxy mechanism relies on Python's magic methods:
 
-*   **`@proxy` decorator (`Proxy.__call__`):** Transforms your class into a proxy. It wraps your class's `__init__` method to store the proxied object and injects a `__getattr__` method. The `__getattr__` method is responsible for delegating any attribute or method access that is not explicitly defined in your proxy class to the underlying proxied object.
-*   **`proxy.create` (`Proxy.create`):** A factory method that instantiates your proxy class, passing the object to be proxied.
-*   **`proxy.get` (`Proxy.get`):** Provides a way to retrieve the original object that the proxy is wrapping.
+*   **`@proxy` decorator:** Transforms your class into a proxy. It wraps your class's `__init__` method to store the proxied object and injects a `__getattr__` method. The `__getattr__` method is responsible for delegating any attribute or method access that is not explicitly defined in your proxy class to the underlying proxied object.
+*   **`proxy.create`:** A factory method that instantiates your proxy class, passing the object to be proxied.
+*   **`proxy.get`:** Provides a way to retrieve the original object that the proxy is wrapping.
 
 ## Type Hinting
 

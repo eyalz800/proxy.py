@@ -1,6 +1,12 @@
 from typing import Callable
 
 class Proxy:
+    """
+    A utility class for creating proxy objects that delegate attribute access
+    and method calls to an underlying proxied object, while allowing the
+    proxy class to define its own behavior. This is designed to work well
+    with LSP autocompletions.
+    """
     @staticmethod
     def __call__[ProxyType, Proxied](proxied: type[Proxied]) -> Callable[[type[ProxyType]], type[ProxyType]]:
         def make_proxy(cls: type[ProxyType]) -> type[ProxyType]:
@@ -23,10 +29,28 @@ class Proxy:
 
     @staticmethod
     def create[ProxyType](proxy: type[ProxyType], proxied, *args, **kwargs) -> ProxyType:
+        """
+        Creates an instance of a proxy class, binding it to a proxied object.
+
+        This is the recommended way to instantiate a proxy object.
+
+        Args:
+            proxy: The proxy class (decorated with `@proxy`).
+            proxied: The object to be proxied.
+            *args: Arguments to pass to the proxy class's `__init__` method.
+            **kwargs: Keyword arguments to pass to the proxy class's `__init__` method.
+
+        Returns:
+            An instance of the proxy class.
+        """
         return proxy(proxied, *args, **kwargs) # type: ignore
 
     @staticmethod
     def get[Proxied](_: type[Proxied], self) -> Proxied:
+        """
+        Retrieves the original proxied object from a proxy instance.
+        This is useful when you need to access the underlying object directly.
+        """
         return self._proxied
 
 proxy = Proxy()

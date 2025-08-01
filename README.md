@@ -1,6 +1,6 @@
 # Proxy Type With LSP Autocompletions
 
-This small Python module provides a flexible and generic way to create proxy objects. It allows you to wrap an existing object and delegate method calls and attribute access to the wrapped (proxied) object, while still allowing the proxy class to define its own behavior or extend the proxied object's functionality.
+This small Python module provides a flexible and generic way to create proxy objects without losing the LSP autocompletions in the IDE. It allows you to wrap an existing object and delegate method calls and attribute access to the wrapped (proxied) object, while still allowing the proxy class to define its own behavior or extend the proxied object's functionality.
 
 ## Features
 

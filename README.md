@@ -88,7 +88,7 @@ print("\n--- Accessing the underlying proxied object ---")
 original_object = proxy.get(Database, db)
 print(f"Is original_object the same as real_db_instance? {original_object is real_db_instance}")
 original_object.execute_query("SELECT * FROM users;")
-`
+```
 
 Output:
 ```sh

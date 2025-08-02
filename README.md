@@ -92,7 +92,7 @@ original_object.execute_query("SELECT * FROM users;")
 
 Output:
 ```sh
-$ python3 example.py                                                                                                                                                                                               ─╯
+$ python3 example.py
 
 --- Interacting with db ---
 Database: Connecting to database...

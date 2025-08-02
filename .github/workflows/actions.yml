@@ -14,5 +14,11 @@ jobs:
       with:
         python-version: '3.12.x'
 
+    - name: Install Mypy
+      run: pip install mypy
+
+    - name: Mypy Checks
+      run: mypy .
+
     - name: Run Test
       run: python test.py

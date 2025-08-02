@@ -93,15 +93,21 @@ original_object.execute_query("SELECT * FROM users;")
 Output:
 ```sh
 $ python3 example.py
+--- Using Database with Performance Tracing Proxy ---
 
 --- Interacting with db ---
 Database: Connecting to database...
 Connected
 [PERF_TRACE]: before execute SELECT * FROM users;
 Database: Executing query: SELECT * FROM users;
-[PERF_TRACE]: after execute SELECT * FROM users;, query took 1005.10ms
+[PERF_TRACE]: after execute SELECT * FROM users;, query took 1005.38ms
 Result for 'SELECT * FROM users;'
+[PERF_TRACE]: before execute SELECT * FROM products;
+Database: Executing query: SELECT * FROM products;
+[PERF_TRACE]: after execute SELECT * FROM products;, query took 1004.03ms
+Result for 'SELECT * FROM products;'
 Database: Disconnecting from database...
+Perf summary: 2009.41ms
 
 --- Accessing the underlying proxied object ---
 Is original_object the same as real_db_instance? True

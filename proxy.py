@@ -24,6 +24,12 @@ class Proxy:
                 combined_members.update(dir(self._proxied))
                 return list(combined_members)
 
+            class meta(type):
+                def __dir__(self):
+                    combined_members = set(dir(cls))
+                    combined_members.update(dir(proxied))
+                    return list(combined_members)
+
             bases = tuple(b for b in cls.__bases__ if b is not proxied)
             members = {k: v for k, v in cls.__dict__.items() if k not in ('__dict__', '__weakref__')}
             members.update({
@@ -31,7 +37,7 @@ class Proxy:
                 '__getattr__': get,
                 '__dir__': dir_,
             })
-            return type(cls.__name__, bases, members) # type: ignore
+            return meta(cls.__name__, bases, members) # type: ignore
         return make_proxy
 
     @staticmethod

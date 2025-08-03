@@ -141,6 +141,106 @@ class TestProxy(unittest.TestCase):
         retrieved_original = proxy.get(MockDatabase, db_proxy_instance)
         self.assertIs(retrieved_original, mock_real_db_instance)
 
+    def test_proxy_class_dir_contains_proxied_members(self):
+        class ProxiedForDirTest:
+            CLASS_ATTR = "hello"
+
+            def __init__(self, val):
+                self.val = val
+
+            def method_a(self):
+                pass
+
+            def method_b(self):
+                pass
+
+        @proxy(ProxiedForDirTest)
+        class ProxyForDirTest(ProxiedForDirTest):
+            def new_method_on_proxy(self):
+                pass
+
+        # Members of ProxiedForDirTest that should appear in the proxy's class dir
+        expected_members = ['__init__', 'method_a', 'method_b', 'CLASS_ATTR', 'new_method_on_proxy']
+
+        proxy_dir = dir(ProxyForDirTest)
+
+        for member in expected_members:
+            self.assertIn(member, proxy_dir, f"'{member}' not found in proxy class dir")
+
+        # Also check some common dunder methods expected to be present due to proxy mechanism
+        self.assertIn('__getattribute__', proxy_dir)
+        self.assertIn('__setattr__', proxy_dir)
+        self.assertIn('__delattr__', proxy_dir)
+
+    def test_proxy_instance_dir_contains_proxied_members(self):
+        class ProxiedForDirTest:
+            CLASS_ATTR = "hello"
+
+            def __init__(self, val):
+                self.val = val
+
+            def method_a(self):
+                pass
+
+            def method_b(self):
+                pass
+
+        @proxy(ProxiedForDirTest)
+        class ProxyForDirTest(ProxiedForDirTest):
+            def new_method_on_proxy(self):
+                pass
+
+        # Create an instance of the proxy class
+        proxy_instance = proxy.create(ProxyForDirTest, ProxiedForDirTest(42))
+
+        # Members of ProxiedForDirTest and ProxyForDirTest that should appear in the proxy instance's dir
+        # This includes instance attributes, class attributes, and methods
+        expected_members = ['__init__', 'method_a', 'method_b', 'CLASS_ATTR', 'new_method_on_proxy', 'val']
+
+        instance_dir = dir(proxy_instance)
+
+        for member in expected_members:
+            self.assertIn(member, instance_dir, f"'{member}' not found in proxy instance dir")
+
+        # Also check some common dunder methods expected to be present due to proxy mechanism
+        self.assertIn('__getattribute__', instance_dir)
+        self.assertIn('__setattr__', instance_dir)
+        self.assertIn('__delattr__', instance_dir)
+
+    def test_proxy_instance_dict_is_accessible(self):
+        class ProxiedForDictTest:
+            def __init__(self, name):
+                self.name = name
+
+        @proxy(ProxiedForDictTest)
+        class ProxyForDictTest(ProxiedForDictTest):
+            pass
+
+        proxied_instance = ProxiedForDictTest("original")
+        proxy_instance = proxy.create(ProxyForDictTest, proxied_instance)
+
+        # 1. Check if __dict__ is accessible and is a dict
+        self.assertIsInstance(proxy_instance.__dict__, dict)
+
+        # 2. Add a new attribute to the proxy instance
+        proxy_instance.new_proxy_attr = 123
+        self.assertEqual(proxy_instance.new_proxy_attr, 123)
+
+        # 3. Verify the new attribute is in the proxy's __dict__
+        self.assertIn('new_proxy_attr', proxy_instance.__dict__)
+        self.assertEqual(proxy_instance.__dict__['new_proxy_attr'], 123)
+
+        # 4. Ensure setting an attribute on the proxy doesn't affect the proxied instance's __dict__
+        self.assertNotIn('new_proxy_attr', proxied_instance.__dict__)
+        self.assertIn('name', proxied_instance.__dict__)
+
+        # Test setting an attribute that also exists on the proxied object, but as an own attribute of the proxy
+        proxy_instance.name = "proxy_name"
+        self.assertEqual(proxy_instance.name, "proxy_name")
+        self.assertEqual(proxied_instance.name, "original") # Original should be unchanged
+        self.assertIn('name', proxy_instance.__dict__) # 'name' should now be in proxy's dict
+        self.assertEqual(proxy_instance.__dict__['name'], "proxy_name")
+
 
 if __name__ == '__main__':
     unittest.main()

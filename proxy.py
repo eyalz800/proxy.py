@@ -25,7 +25,7 @@ class Proxy:
                 return list(combined_members)
 
             bases = tuple(b for b in cls.__bases__ if b is not proxied)
-            members = dict(cls.__dict__)
+            members = {k: v for k, v in cls.__dict__.items() if k not in ('__dict__', '__weakref__')}
             members.update({
                 '__init__': init,
                 '__getattr__': get,

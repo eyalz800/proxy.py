@@ -1,4 +1,6 @@
-from typing import Callable
+# pyright: strict
+
+from typing import Callable, Any
 
 class Proxy:
     """
@@ -10,18 +12,18 @@ class Proxy:
     @staticmethod
     def __call__[ProxyType, Proxied](proxied: type[Proxied]) -> Callable[[type[ProxyType]], type[ProxyType]]:
         def make_proxy(cls: type[ProxyType]) -> type[ProxyType]:
-            def init(self, proxied: Proxied, *args, **kwargs):
-                self._proxied = proxied
+            def init(self: ProxyType, proxied: Proxied, *args: Any, **kwargs: Any):
+                self._proxied = proxied # type: ignore [attr-defined] # pyright: ignore [reportAttributeAccessIssue]
                 if cls.__init__ is not proxied.__class__.__init__:
                     cls.__init__(self, *args, **kwargs)
 
-            def get(self, name: str):
-                return getattr(self._proxied, name)
+            def get(self: ProxyType, name: str):
+                return getattr(self._proxied, name) # type: ignore [attr-defined] # pyright: ignore [reportUnknownMemberType, reportAttributeAccessIssue, reportUnknownArgumentType]
 
-            def dir_(self):
+            def dir_(self: ProxyType):
                 combined_members = set(dir(cls))
                 combined_members.update(self.__dict__.keys())
-                combined_members.update(dir(self._proxied))
+                combined_members.update(dir(self._proxied)) # type: ignore [attr-defined] # pyright: ignore [reportUnknownMemberType, reportAttributeAccessIssue, reportUnknownArgumentType]
                 return list(combined_members)
 
             class meta(type):
@@ -37,11 +39,11 @@ class Proxy:
                 '__getattr__': get,
                 '__dir__': dir_,
             })
-            return meta(cls.__name__, bases, members) # type: ignore
+            return meta(cls.__name__, bases, members) # type: ignore [return-value] # pyright: ignore [reportReturnType]
         return make_proxy
 
     @staticmethod
-    def create[ProxyType](proxy: type[ProxyType], proxied, *args, **kwargs) -> ProxyType:
+    def create[ProxyType](proxy: type[ProxyType], proxied: Any, *args: Any, **kwargs: Any) -> ProxyType:
         """
         Creates an instance of a proxy class, binding it to a proxied object.
 
@@ -56,10 +58,10 @@ class Proxy:
         Returns:
             An instance of the proxy class.
         """
-        return proxy(proxied, *args, **kwargs) # type: ignore
+        return proxy(proxied, *args, **kwargs) # type: ignore [call-arg] # pyright: ignore [reportCallIssue]
 
     @staticmethod
-    def get[Proxied](_: type[Proxied], self) -> Proxied:
+    def get[Proxied](_: type[Proxied], self: Any) -> Proxied:
         """
         Retrieves the original proxied object from a proxy instance.
         This is useful when you need to access the underlying object directly.

@@ -12,9 +12,19 @@ class Proxy:
     @staticmethod
     def __call__[ProxyType, Proxied](proxied: type[Proxied]) -> Callable[[type[ProxyType]], type[ProxyType]]:
         def make_proxy(cls: type[ProxyType]) -> type[ProxyType]:
-            def init(self: ProxyType, proxied: Proxied, *args: Any, **kwargs: Any):
-                self._proxied = proxied # type: ignore [attr-defined] # pyright: ignore [reportAttributeAccessIssue]
-                if cls.__init__ is not proxied.__class__.__init__:
+            class meta(type):
+                def __dir__(self):
+                    combined_members = set(dir(cls))
+                    combined_members.update(dir(proxied))
+                    return list(combined_members)
+
+            def new(cls: type[ProxyType]) -> ProxyType:
+                proxy = super(cls, cls).__new__(cls)
+                proxy._proxied = None # type: ignore [attr-defined] # pyright: ignore [reportAttributeAccessIssue]
+                return proxy
+
+            def init(self: ProxyType, *args: Any, **kwargs: Any):
+                if cls.__init__ is not proxied.__init__:
                     cls.__init__(self, *args, **kwargs)
 
             def get(self: ProxyType, name: str):
@@ -26,15 +36,10 @@ class Proxy:
                 combined_members.update(dir(self._proxied)) # type: ignore [attr-defined] # pyright: ignore [reportUnknownMemberType, reportAttributeAccessIssue, reportUnknownArgumentType]
                 return list(combined_members)
 
-            class meta(type):
-                def __dir__(self):
-                    combined_members = set(dir(cls))
-                    combined_members.update(dir(proxied))
-                    return list(combined_members)
-
             bases = tuple(b for b in cls.__bases__ if b is not proxied)
             members = {k: v for k, v in cls.__dict__.items() if k not in ('__dict__', '__weakref__')}
             members.update({
+                '__new__': new,
                 '__init__': init,
                 '__getattr__': get,
                 '__dir__': dir_,
@@ -58,14 +63,25 @@ class Proxy:
         Returns:
             An instance of the proxy class.
         """
-        return proxy(proxied, *args, **kwargs) # type: ignore [call-arg] # pyright: ignore [reportCallIssue]
+        proxy_obj = object.__new__(proxy)
+        Proxy.set(proxy_obj, proxied)
+        proxy_obj.__init__(*args, **kwargs) # type: ignore [misc]
+        return proxy_obj
 
     @staticmethod
-    def get[Proxied](_: type[Proxied], self: Any) -> Proxied:
+    def get[Proxied](_: type[Proxied], proxy: Any) -> Proxied:
         """
         Retrieves the original proxied object from a proxy instance.
         This is useful when you need to access the underlying object directly.
         """
-        return self._proxied
+        return proxy._proxied
+
+    @staticmethod
+    def set(proxy: Any, proxied: Any):
+        """
+        Sets a new proxy object in place of the previous one.
+        This is useful when you need to set the underlying object directly.
+        """
+        proxy._proxied = proxied
 
 proxy = Proxy()

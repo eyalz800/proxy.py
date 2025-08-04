@@ -12,14 +12,14 @@ class Proxy:
     @staticmethod
     def __call__[ProxyType, Proxied](proxied: type[Proxied]) -> Callable[[type[ProxyType]], type[ProxyType]]:
         def make_proxy(cls: type[ProxyType]) -> type[ProxyType]:
-            class meta(type):
+            class meta(type(cls)): # type: ignore [misc] # pyright: ignore [reportUntypedBaseClass]
                 def __dir__(self):
                     combined_members = set(dir(cls))
                     combined_members.update(dir(proxied))
                     return list(combined_members)
 
-            def new(cls: type[ProxyType]) -> ProxyType:
-                proxy = super(cls, cls).__new__(cls)
+            def new(cls: type[ProxyType], *args: Any, **kwargs: Any) -> ProxyType:
+                proxy = super(cls, cls).__new__(cls) # type: ignore [misc]
                 proxy._proxied = None # type: ignore [attr-defined] # pyright: ignore [reportAttributeAccessIssue]
                 return proxy
 
